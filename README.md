@@ -1,2 +1,2 @@
-# one
-One search
+# one - OSINT Tool
+Just One Search
