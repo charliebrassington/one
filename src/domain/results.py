@@ -35,3 +35,10 @@ class GravatarEmailResult(Result):
     social_medias: str
     photos: List[str]
     username: str
+
+
+@dataclass
+class DiscordInviteResult(Result):
+    discord_id: str
+    discord_username: str
+    photos: str

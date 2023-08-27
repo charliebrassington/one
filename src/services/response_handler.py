@@ -72,11 +72,28 @@ def gravatar_profile_handler(
     )
 
 
+def discord_invite_handler(
+    response: models.HttpResponse
+):
+    print(response.content)
+    data = json.loads(response.content)
+    if "inviter" not in data:
+        return None
+
+    inviter_data = data["inviter"]
+    return results.DiscordInviteResult(
+        discord_id=inviter_data["id"],
+        discord_username=inviter_data["username"],
+        photos=f"https://cdn.discordapp.com/avatars/{inviter_data['id']}/{inviter_data['avatar']}.png?size=1024"
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
     "company_house_fullname_lookup": company_house_person_handler,
-    "gravatar_email_lookup": gravatar_profile_handler
+    "gravatar_email_lookup": gravatar_profile_handler,
+    "discord_invite_code_lookup": discord_invite_handler
 }
 
 
