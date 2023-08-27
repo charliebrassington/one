@@ -23,6 +23,9 @@ def about_me_profile_handler(
         if "DOMAIN_NAME" in script_text:
             data = json.loads(script_text)
             user_info = data["page"]["user"]
+            if user_info is None:
+                return None
+
             return results.AboutMeUsernameResult(
                 first_name=user_info["first_name"],
                 last_name=user_info["last_name"],
@@ -39,7 +42,13 @@ def company_house_person_handler(
 ) -> results.CompanyHouseFullnameResult | None:
     officer_element = response.soup.find("li", {"class": "type-officer"})
     p_tag_elements = officer_element.find_all("p")
+
     birth_info = p_tag_elements[0].text.split()
+    birth_year, birth_month = birth_info[-1], birth_info[-2]
+
+    if len(birth_year) != 4:
+        return None
+
     return results.CompanyHouseFullnameResult(
         fullname=officer_element.find("a", href=True).text,
         birth_year=birth_info[-1],
@@ -48,10 +57,26 @@ def company_house_person_handler(
     )
 
 
+def gravatar_profile_handler(
+    response: models.HttpResponse
+):
+    if response.status_code == 404:
+        return None
+
+    data = json.loads(response.content)
+    profile_dict = data["entry"][0]
+    return results.GravatarEmailResult(
+        social_medias=profile_dict["profileUrl"],
+        username=profile_dict["preferredUsername"],
+        photos=[photo["value"] for photo in profile_dict["photos"]]
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
-    "company_house_fullname_lookup": company_house_person_handler
+    "company_house_fullname_lookup": company_house_person_handler,
+    "gravatar_email_lookup": gravatar_profile_handler
 }
 
 

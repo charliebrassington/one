@@ -1,5 +1,6 @@
 import aiohttp
 import json
+import hashlib
 
 from typing import Type
 from src.domain import models
@@ -17,7 +18,6 @@ class Scraper:
         request_name: str,
         **kwargs
     ) -> models.HttpResponse:
-        print(f"Sent request {request_name}")
         """
         Making requests with the session.
 
@@ -26,6 +26,7 @@ class Scraper:
         :param kwargs:
         :return: models.HttpResponse
         """
+        print(f"Sent request {request_name}")
         async with getattr(self.session, method)(**kwargs) as response:
             content = await response.text()
             print(f"Finished request {request_name}")
@@ -97,7 +98,26 @@ class CompanyHouseScraper(Scraper):
         )
 
 
+class GravatarScraper(Scraper):
+    information = models.ScraperMetadata(
+        name="Gravatar Scraper",
+        main_url="https://gravatar.com/",
+        functions={
+            "email": "lookup_email"
+        }
+    )
+
+    async def lookup_email(self, email: str) -> models.HttpResponse:
+        hashed_email = hashlib.md5(email.encode()).hexdigest()
+        return await self.make_request(
+            method="get",
+            request_name="gravatar_email_lookup",
+            url=f"https://en.gravatar.com/{hashed_email}.json"
+        )
+
+
 SCRAPER_TUPLE = (
     AboutMeScraper,
-    CompanyHouseScraper
+    CompanyHouseScraper,
+    GravatarScraper
 )

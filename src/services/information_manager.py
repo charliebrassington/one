@@ -86,6 +86,18 @@ class InformationManager:
         if parsed_result:
             self._merge_parsed_result(parsed_result)
 
+    def clean_information(self) -> None:
+        """
+        Cleans the information removing duplicates and empty values in the key pair.
+
+        :return: None
+        """
+        for key, value_list in self.information.copy().items():
+            if value_list:
+                self.information[key] = list(set(value_list))
+            else:
+                self.information.pop(key)
+
     def convert_names(self) -> None:
         """
         Converts the first name, middle name and last name to a full name.

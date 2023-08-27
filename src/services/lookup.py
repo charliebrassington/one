@@ -42,7 +42,7 @@ class Lookup:
         tasks = []
         for key, func_attr in scraper.information.functions.items():
             for value in self.information_service.information[key]:
-                pair = (func_attr, value)
+                pair = (func_attr, value, scraper.information.name)
                 if pair not in self.seen_pairs:
                     tasks.append(getattr(scraper_object, func_attr)(value))
                     self.seen_pairs.add(pair)
@@ -85,6 +85,8 @@ class Lookup:
         for depth in range(search_depth):
             print(f"Running {depth+1} Depth")
             await self.run_tasks()
+
             self.information_service.convert_names()
+            self.information_service.clean_information()
 
         await self.session.close()

@@ -28,3 +28,10 @@ class CompanyHouseFullnameResult(Result, BaseModel):
     birth_year: int
     birth_month: str
     address: str
+
+
+@dataclass
+class GravatarEmailResult(Result):
+    social_medias: str
+    photos: List[str]
+    username: str
