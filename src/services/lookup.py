@@ -85,5 +85,6 @@ class Lookup:
         for depth in range(search_depth):
             print(f"Running {depth+1} Depth")
             await self.run_tasks()
+            self.information_service.convert_names()
 
         await self.session.close()

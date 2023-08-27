@@ -99,4 +99,5 @@ class CompanyHouseScraper(Scraper):
 
 SCRAPER_TUPLE = (
     AboutMeScraper,
+    CompanyHouseScraper
 )

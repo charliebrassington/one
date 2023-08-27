@@ -85,3 +85,23 @@ class InformationManager:
         parsed_result = self._parse_result(result)
         if parsed_result:
             self._merge_parsed_result(parsed_result)
+
+    def convert_names(self) -> None:
+        """
+        Converts the first name, middle name and last name to a full name.
+
+        :return: None
+        """
+        first_names = self.information["first_name"]
+        last_names = self.information["last_name"]
+        middle_names = self.information["middle_name"]
+
+        if middle_names:
+            combined_names = zip(first_names, middle_names, last_names)
+        else:
+            combined_names = zip(first_names, last_names)
+
+        for name in combined_names:
+            name_string = " ".join(name)
+            if name_string not in self.information["fullname"]:
+                self.information["fullname"].append(name_string)
