@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from typing import List
+from pydantic import BaseModel
 
 
 class Result:
     pass
-
-    def convert(self):
-        pass
 
 
 @dataclass
@@ -23,3 +21,10 @@ class AboutMeUsernameResult(Result):
     interests: List[str]
     location: str
     social_media_links: List[str]
+
+
+class CompanyHouseFullnameResult(Result, BaseModel):
+    fullname: str
+    birth_year: int
+    birth_month: str
+    address: str

@@ -34,9 +34,24 @@ def about_me_profile_handler(
     return None
 
 
+def company_house_person_handler(
+    response: models.HttpResponse
+) -> results.CompanyHouseFullnameResult | None:
+    officer_element = response.soup.find("li", {"class": "type-officer"})
+    p_tag_elements = officer_element.find_all("p")
+    birth_info = p_tag_elements[0].text.split()
+    return results.CompanyHouseFullnameResult(
+        fullname=officer_element.find("a", href=True).text,
+        birth_year=birth_info[-1],
+        birth_month=birth_info[-2],
+        address=p_tag_elements[1].text
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
-    "about_me_username_lookup": about_me_profile_handler
+    "about_me_username_lookup": about_me_profile_handler,
+    "company_house_fullname_lookup": company_house_person_handler
 }
 
 
