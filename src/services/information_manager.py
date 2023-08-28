@@ -13,7 +13,8 @@ validator_keys = (
 
 
 name_converters = {
-    "user_name": "username"
+    "user_name": "username",
+    "address": "current_address"
 }
 
 blacklist_keys = {

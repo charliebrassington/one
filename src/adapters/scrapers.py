@@ -40,10 +40,8 @@ class Scraper(AbstractScraper):
         :param kwargs:
         :return: models.HttpResponse
         """
-        print(f"Sent request {request_name}")
         async with getattr(self.session, method)(**kwargs) as response:
             content = await response.text()
-            print(f"Finished request {request_name}")
             return models.HttpResponse(
                 name=request_name,
                 content=content,
@@ -186,7 +184,7 @@ class DiscordScraper(Scraper):
         Gets the inviter information from an invitation code to a discord server.
 
         :param invite_url:
-        :return: models.HttpResponse
+        :return: models.HttpResponse | None
         """
         code = invite_url.split("discord.gg/")
         if len(code) != 2:
@@ -262,11 +260,39 @@ class CyberScraper(CloudflareScraper):
         )
 
 
+class TwitchScraper(Scraper):
+    information = models.ScraperMetadata(
+        name="Twitch scraoer",
+        main_url="https://twitch.tv",
+        functions={
+            "social_medias": "lookup_twitch_profile"
+        }
+    )
+
+    async def lookup_twitch_profile(self, link: str) -> models.HttpResponse | None:
+        """
+        Fetches the twitch profiles about me and returns the html
+
+        :param link:
+        :return: models.HttpResponse | None
+        """
+        split_link = link.split("twitch.tv/")
+        if len(split_link) != 2:
+            return None
+
+        return await self.make_request(
+            method="get",
+            request_name="twitch_about_me_lookup",
+            url=f"https://m.twitch.tv/{split_link[1]}/about"
+        )
+
+
 SCRAPER_TUPLE = (
     AboutMeScraper,
     CompanyHouseScraper,
     GravatarScraper,
     DiscordScraper,
     PlanckeScraper,
-    CyberScraper
+    CyberScraper,
+    TwitchScraper
 )

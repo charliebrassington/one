@@ -66,3 +66,7 @@ class CyberbackgroundcheckPerson(Result):
     previous_addresses: List[str]
     relatives: List[str]
 
+
+@dataclass
+class TwitchProfileResult:
+    social_medias: List[str]

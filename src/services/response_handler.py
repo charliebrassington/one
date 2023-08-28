@@ -157,6 +157,23 @@ def cyberbackgroundcheck_id_handler(
     )
 
 
+def twitch_description_handler(
+    response: models.HttpResponse
+):
+    for script in response.soup.find_all("script"):
+        if "isLoggedInServerside" in script.text:
+            data = json.loads(script.text)
+            return results.TwitchProfileResult(
+                social_medias=[
+                    value["url"]
+                    for name, value in data["props"]["relayQueryRecords"].items()
+                    if name.startswith("SocialMedia")
+                ]
+            )
+
+    return None
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -165,7 +182,8 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "discord_invite_code_lookup": discord_invite_handler,
     "plancke_minecraft_username_lookup": plancke_profile_handler,
     "cyberbackgroundcheck_email_lookup": cyberbackgroundcheck_result_handler,
-    "cyberbackgroundcheck_person_id_lookup": cyberbackgroundcheck_id_handler
+    "cyberbackgroundcheck_person_id_lookup": cyberbackgroundcheck_id_handler,
+    "twitch_about_me_lookup": twitch_description_handler
 }
 
 
