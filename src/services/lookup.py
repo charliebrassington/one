@@ -69,8 +69,8 @@ class Lookup:
         :return: None
         """
         http_responses = await self.collect_http_responses()
-        print(f"Collected {len(http_responses)} responses")
         for response in http_responses:
+            print(f"Parsing {response.name}")
             parsed_response = response_handler.handle_response(response=response)
             if parsed_response is not None:
                 self.information_service.add_result(parsed_response)

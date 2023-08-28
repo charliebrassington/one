@@ -7,12 +7,16 @@ All in one OSINT tool, search anything find anything.
 - discord profile finder
 - company house scraper
 - about.me profile scraper
+- twitch description scraper
+- plancke scraper
+- people lookup (US, UK)
+- Mail.ru recovery module
 
 ## Upcoming Features
 - email to duolingo account
-- plancke scraper
-- twitch scraper
 - discord to roblox (api keys included)
+- UK birth record scraper
+- UK criminal record scraper
 
 ## Setup
 ```console

@@ -9,7 +9,7 @@ def _collect_cbc_data(soup):
         if "disambiguatingDescription" in script.text:
             data = json.loads(script.text.strip())[0]
             return {
-                "email_addresses": [data["email"]] if isinstance(data["email"], str) else data["email"]
+                "email": [data["email"]] if isinstance(data["email"], str) else data["email"]
             }
 
 
@@ -173,6 +173,17 @@ def twitch_description_handler(
     return None
 
 
+def mail_ru_recovery_handler(
+    response: models.HttpResponse
+):
+    data = json.loads(response.content)
+    user_data = data["body"]
+    return results.MailruRecoveryResult(
+        email_hints=user_data["emails"],
+        phone_hints=user_data["phones"]
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -182,7 +193,8 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "plancke_minecraft_username_lookup": plancke_profile_handler,
     "cyberbackgroundcheck_email_lookup": cyberbackgroundcheck_result_handler,
     "cyberbackgroundcheck_person_id_lookup": cyberbackgroundcheck_id_handler,
-    "twitch_about_me_lookup": twitch_description_handler
+    "twitch_about_me_lookup": twitch_description_handler,
+    "mail_ru_recovery_result": mail_ru_recovery_handler
 }
 
 

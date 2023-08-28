@@ -61,7 +61,7 @@ class CyberbackgroundcheckPerson(Result):
     last_name: str
     age: int
     current_address: str
-    email_addresses: List[str]
+    email: List[str]
     phone_numbers: List[str]
     previous_addresses: List[str]
     relatives: List[str]
@@ -70,3 +70,9 @@ class CyberbackgroundcheckPerson(Result):
 @dataclass
 class TwitchProfileResult:
     social_medias: List[str]
+
+
+@dataclass
+class MailruRecoveryResult(Result):
+    phone_hints: List[str]
+    email_hints: List[str]
