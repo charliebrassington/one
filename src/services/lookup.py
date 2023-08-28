@@ -30,7 +30,7 @@ class Lookup:
 
     async def collect_scraper_tasks(
         self,
-        scraper: Type[scrapers.Scraper]
+        scraper: Type[scrapers.CloudflareScraper | scrapers.Scraper]
     ) -> List[Callable[..., Coroutine]]:
         """
         Collects all the tasks needed with the information gathered.

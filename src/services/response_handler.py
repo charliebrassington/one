@@ -84,7 +84,6 @@ def gravatar_profile_handler(
 def discord_invite_handler(
     response: models.HttpResponse
 ):
-    print(response.content)
     data = json.loads(response.content)
     if "inviter" not in data:
         return None
