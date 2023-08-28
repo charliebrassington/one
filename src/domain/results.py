@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 from pydantic import BaseModel
 
 
@@ -20,7 +20,7 @@ class AboutMeUsernameResult(Result):
     last_name: str
     interests: List[str]
     location: str
-    social_media_links: List[str]
+    social_medias: List[str]
 
 
 class CompanyHouseFullnameResult(Result, BaseModel):
@@ -42,3 +42,9 @@ class DiscordInviteResult(Result):
     discord_id: str
     discord_username: str
     photos: str
+
+
+@dataclass
+class PlanckeProfile(Result):
+    social_medias: List[str]
+    discord_username: str | None

@@ -31,7 +31,7 @@ def about_me_profile_handler(
                 last_name=user_info["last_name"],
                 interests=[item["interest"] for item in user_info["interests"]],
                 location=user_info["locations"][0]["location"],
-                social_media_links=[app["site_url"] for app in user_info["apps"]]
+                social_medias=[app["site_url"] for app in user_info["apps"]]
             )
 
     return None
@@ -88,15 +88,38 @@ def discord_invite_handler(
     )
 
 
+def plancke_profile_handler(
+    response: models.HttpResponse
+):
+    soup = response.soup
+    discord_username = None
+    for script in soup.find_all("script"):
+        if "social_DISCORD" in script.text:
+            discord_username = script.text.split('Discord", "')[1].split('");')[0]
+
+    return results.PlanckeProfile(
+        discord_username=discord_username,
+        social_medias=[
+            link_element["href"]
+            for link_element in soup.find_all("a", {"target": "_blank"}, href=True)
+            if not link_element["href"].startswith("https://github.com")
+        ]
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
     "company_house_fullname_lookup": company_house_person_handler,
     "gravatar_email_lookup": gravatar_profile_handler,
-    "discord_invite_code_lookup": discord_invite_handler
+    "discord_invite_code_lookup": discord_invite_handler,
+    "plancke_minecraft_username_lookup": plancke_profile_handler
 }
 
 
-def handle_response(response: models.HttpResponse) -> results.Result:
+def handle_response(response: models.HttpResponse | None) -> results.Result | None:
+    if response is None:
+        return None
+
     handler = RESPONSE_HANDLERS[response.name]
     return handler(response)

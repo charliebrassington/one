@@ -2,7 +2,7 @@ import aiohttp
 import json
 import hashlib
 
-from typing import Type
+from typing import Type, Coroutine, Any
 from src.domain import models
 
 
@@ -131,7 +131,7 @@ class DiscordScraper(Scraper):
         }
     )
 
-    async def lookup_invite_code(self, invite_url: str):
+    async def lookup_invite_code(self, invite_url: str) -> models.HttpResponse | None:
         """
         Gets the inviter information from an invitation code to a discord server.
 
@@ -149,9 +149,36 @@ class DiscordScraper(Scraper):
         )
 
 
+class PlanckeScraper(Scraper):
+    information = models.ScraperMetadata(
+        name="Plancke scraper",
+        main_url="https://plancke.io/",
+        functions={
+            "minecraft_username": "lookup_minecraft_username"
+        }
+    )
+
+    async def lookup_minecraft_username(
+        self,
+        minecraft_username: str
+    ) -> models.HttpResponse:
+        """
+        Lookups information about a minecraft username on hypixel using Plancke.
+
+        :param minecraft_username:
+        :return: models.HttpResponse
+        """
+        return await self.make_request(
+            method="get",
+            request_name="plancke_minecraft_username_lookup",
+            url=f"https://plancke.io/hypixel/player/stats/{minecraft_username}"
+        )
+
+
 SCRAPER_TUPLE = (
     AboutMeScraper,
     CompanyHouseScraper,
     GravatarScraper,
-    DiscordScraper
+    DiscordScraper,
+    PlanckeScraper
 )

@@ -31,5 +31,7 @@ parsed_starting_information = {
     if value is not None and name != "search_depth"
 }
 
-
-asyncio.run(main(args=parsed_starting_information, search_depth=parsed_arguments.search_depth))
+asyncio.run(main(
+    args=parsed_starting_information,
+    search_depth=parsed_arguments.search_depth)
+)
