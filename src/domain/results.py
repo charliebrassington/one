@@ -48,3 +48,21 @@ class DiscordInviteResult(Result):
 class PlanckeProfile(Result):
     social_medias: List[str]
     discord_username: str | None
+
+
+@dataclass
+class CyberbackgroundcheckResult(Result):
+    cyber_person_id: str
+
+
+@dataclass
+class CyberbackgroundcheckPerson(Result):
+    first_name: str
+    last_name: str
+    age: int
+    current_address: str
+    email_addresses: List[str]
+    phone_numbers: List[str]
+    previous_addresses: List[str]
+    relatives: List[str]
+

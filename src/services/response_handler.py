@@ -4,6 +4,15 @@ from src.domain import results, models
 from typing import Callable, Dict
 
 
+def _collect_cbc_data(soup):
+    for script in soup.find_all("script"):
+        if "disambiguatingDescription" in script.text:
+            data = json.loads(script.text.strip())[0]
+            return {
+                "email_addresses": [data["email"]] if isinstance(data["email"], str) else data["email"]
+            }
+
+
 def about_me_email_handler(
     response: models.HttpResponse
 ) -> results.AboutMeEmailResult | None:
@@ -107,13 +116,56 @@ def plancke_profile_handler(
     )
 
 
+def cyberbackgroundcheck_result_handler(
+    response: models.HttpResponse
+):
+    detail_links = response.soup.find_all("a", {"class": "btn btn-primary btn-block"}, href=True)
+    links = [element_link["href"].replace("/detail/", "") for element_link in detail_links]
+    if links:
+        return results.CyberbackgroundcheckResult(
+            cyber_person_id=links[0]
+        )
+
+    return None
+
+
+def cyberbackgroundcheck_id_handler(
+    response: models.HttpResponse
+):
+    soup = response.soup
+
+    name = soup.find("span", {"class": "name-given"}).text.split()
+    addresses = soup.find_all("a", {"class": "address"})
+    return results.CyberbackgroundcheckPerson(
+        age=getattr(soup.find("span", {"class": "age"}), "text", 0),
+        current_address=addresses[0].text.strip(),
+        first_name=name[0],
+        last_name=name[1] if len(name) == 2 else name[2],
+        phone_numbers=[
+            phone_element.text
+            for phone_element in soup.find_all("a", {"class": "phone"})
+        ],
+        previous_addresses=[
+            address.text.strip()
+            for address in addresses[1:]
+        ],
+        relatives=[
+            relative_element.text
+            for relative_element in soup.find_all("a", {"class": "relative"})
+        ],
+        **_collect_cbc_data(soup=soup)
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
     "company_house_fullname_lookup": company_house_person_handler,
     "gravatar_email_lookup": gravatar_profile_handler,
     "discord_invite_code_lookup": discord_invite_handler,
-    "plancke_minecraft_username_lookup": plancke_profile_handler
+    "plancke_minecraft_username_lookup": plancke_profile_handler,
+    "cyberbackgroundcheck_email_lookup": cyberbackgroundcheck_result_handler,
+    "cyberbackgroundcheck_person_id_lookup": cyberbackgroundcheck_id_handler
 }
 
 
