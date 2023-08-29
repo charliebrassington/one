@@ -76,3 +76,15 @@ class TwitchProfileResult:
 class MailruRecoveryResult(Result):
     phone_hints: List[str]
     email_hints: List[str]
+
+
+@dataclass
+class YoutubeConsentFormResult(Result):
+    consent_form_url: str
+
+
+@dataclass
+class YoutubeChannelResult(Result):
+    username: str
+    social_medias: List[str]
+    location: str | None

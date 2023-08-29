@@ -70,9 +70,9 @@ class Lookup:
         """
         http_responses = await self.collect_http_responses()
         for response in http_responses:
-            print(f"Parsing {response.name}")
             parsed_response = response_handler.handle_response(response=response)
             if parsed_response is not None:
+                print(f"Parsing {response.name}")
                 self.information_service.add_result(parsed_response)
 
     async def run(self, search_depth: int = 3) -> None:
@@ -88,5 +88,7 @@ class Lookup:
 
             self.information_service.convert_names()
             self.information_service.clean_information()
+
+        self.information_service.information.pop("consent_form_url", None)
 
         await self.session.close()

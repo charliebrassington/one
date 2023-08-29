@@ -6,6 +6,7 @@ from .gravatar import GravatarScraper
 from .plancke import PlanckeScraper
 from .twitch import TwitchScraper
 from .mailru import MailruScraper
+from .youtube import YoutubeScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -18,5 +19,6 @@ SCRAPER_TUPLE = (
     PlanckeScraper,
     CyberScraper,
     TwitchScraper,
-    MailruScraper
+    MailruScraper,
+    YoutubeScraper
 )

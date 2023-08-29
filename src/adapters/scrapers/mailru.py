@@ -11,7 +11,13 @@ class MailruScraper(base_scraper.Scraper):
         }
     )
 
-    async def recover_email(self, email: str):
+    async def recover_email(self, email: str) -> models.HttpResponse | None:
+        """
+        Finds email and phone number hints for the recovery account from a mail.ru account.
+
+        :param email:
+        :return: models.HttpResponse
+        """
         if not email.endswith("mail.ru"):
             return None
 

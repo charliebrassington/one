@@ -184,6 +184,50 @@ def mail_ru_recovery_handler(
     )
 
 
+def youtube_consent_handler(
+    response: models.HttpResponse
+):
+    consent_form = response.soup.find_all('form')[1]
+    channel_url, params = "", []
+    for field in consent_form.find_all('input'):
+        field_name = field.get("name", None)
+        if field_name is not None:
+            params.append(f"{field_name}={field['value']}")
+
+        if field_name == "continue":
+            channel_url = field['value']
+
+    return results.YoutubeConsentFormResult(
+        consent_form_url=f"{consent_form['action']}?{'&'.join(params)}split-point{channel_url}"
+    )
+
+
+def youtube_channel_handler(
+    response: models.HttpResponse
+):
+    for script in response.soup.find_all("script"):
+        if "ytInitialData" in script.text:
+            data_string = script.text.replace("var ytInitialData = ", "").split(";")[0]
+            data = json.loads(data_string)
+
+            metadata = data["metadata"]["channelMetadataRenderer"]
+            main_tab = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][7].get("tabRenderer")
+            country = None
+            if main_tab is not None:
+                contents = main_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]  # I hate YouTube
+                country = contents["channelAboutFullMetadataRenderer"].get("country")
+
+            return results.YoutubeChannelResult(
+                username=metadata["ownerUrls"][0].split("/@")[1],
+                social_medias=[
+                    text
+                    for text in metadata["description"].split()
+                    if text.startswith("http") or ".com" in text
+                ],
+                location=country["simpleText"] if country is not None else None
+            )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -194,7 +238,9 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "cyberbackgroundcheck_email_lookup": cyberbackgroundcheck_result_handler,
     "cyberbackgroundcheck_person_id_lookup": cyberbackgroundcheck_id_handler,
     "twitch_about_me_lookup": twitch_description_handler,
-    "mail_ru_recovery_result": mail_ru_recovery_handler
+    "mail_ru_recovery_result": mail_ru_recovery_handler,
+    "consent_form_lookup": youtube_consent_handler,
+    "youtube_channel_lookup": youtube_channel_handler
 }
 
 
@@ -202,5 +248,6 @@ def handle_response(response: models.HttpResponse | None) -> results.Result | No
     if response is None:
         return None
 
+    print(f"Handling {response.name}")
     handler = RESPONSE_HANDLERS[response.name]
     return handler(response)

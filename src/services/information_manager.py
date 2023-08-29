@@ -52,7 +52,7 @@ class InformationManager:
         parsed_result_dictionary = {}
         for key, value in result.__dict__.items():
             key = name_converters.get(key, key)
-            value = value.lower() if isinstance(value, str) else value
+            value = value.lower() if isinstance(value, str) and "https://consent.youtube.com" not in value else value
             if not self._is_valid_pair(key=key, value=value):
                 print(f"Invalid Information Found {result}")
                 return {}
@@ -70,7 +70,10 @@ class InformationManager:
         :return: None
         """
         for key, value in parsed_result_dictionary.items():
-            if isinstance(value, list):
+            if value is None:
+                continue
+
+            elif isinstance(value, list):
                 self.information[key].extend(value)
             else:
                 self.information[key].append(value)

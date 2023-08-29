@@ -11,6 +11,7 @@ All in one OSINT tool, search anything find anything.
 - plancke scraper
 - people lookup (US, UK)
 - Mail.ru recovery module
+- Youtube channel scraper
 
 ## Upcoming Features
 - email to duolingo account
