@@ -92,3 +92,4 @@ class Lookup:
         self.information_service.information.pop("consent_form_url", None)
 
         await self.session.close()
+        print(f"Finished {len(self.seen_pairs)} Scrapers")

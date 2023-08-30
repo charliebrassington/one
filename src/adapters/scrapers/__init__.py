@@ -7,6 +7,7 @@ from .plancke import PlanckeScraper
 from .twitch import TwitchScraper
 from .mailru import MailruScraper
 from .youtube import YoutubeScraper
+from .duolingo import DuolingoScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -20,5 +21,6 @@ SCRAPER_TUPLE = (
     CyberScraper,
     TwitchScraper,
     MailruScraper,
-    YoutubeScraper
+    YoutubeScraper,
+    DuolingoScraper
 )

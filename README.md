@@ -1,23 +1,14 @@
-# one - OSINT Tool
-All in one OSINT tool, search anything find anything.
+# One - OSINT Tool
+One is a unique OSINT tool which processes and validates the information scraped on the target. 
+It also finds more information with the information it finds!
 
 ## Main Features
-- email to about.me account
-- email to gravatar account
+- email to accounts
 - discord profile finder
-- company house scraper
-- about.me profile scraper
-- twitch description scraper
-- plancke scraper
+- minecraft lookup
 - people lookup (US, UK)
-- Mail.ru recovery module
-- Youtube channel scraper
+- account recovery information
 
-## Upcoming Features
-- email to duolingo account
-- discord to roblox (api keys included)
-- UK birth record scraper
-- UK criminal record scraper
 
 ## Setup
 ```console

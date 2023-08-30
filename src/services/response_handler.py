@@ -228,6 +228,18 @@ def youtube_channel_handler(
             )
 
 
+def duolingo_profile_handler(
+    response: models.HttpResponse
+):
+    data = json.loads(response.content)
+    if not data["users"]:
+        return None
+
+    return results.DuolingoProfileResult(
+        social_medias=f'https://www.duolingo.com/profile/{data["users"][0]["username"]}'
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -240,7 +252,8 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "twitch_about_me_lookup": twitch_description_handler,
     "mail_ru_recovery_result": mail_ru_recovery_handler,
     "consent_form_lookup": youtube_consent_handler,
-    "youtube_channel_lookup": youtube_channel_handler
+    "youtube_channel_lookup": youtube_channel_handler,
+    "duolingo_email_lookup": duolingo_profile_handler
 }
 
 

@@ -88,3 +88,8 @@ class YoutubeChannelResult(Result):
     username: str
     social_medias: List[str]
     location: str | None
+
+
+@dataclass
+class DuolingoProfileResult(Result):
+    social_medias: str
