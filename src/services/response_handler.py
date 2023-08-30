@@ -209,13 +209,7 @@ def youtube_channel_handler(
         if "ytInitialData" in script.text:
             data_string = script.text.replace("var ytInitialData = ", "").split(";")[0]
             data = json.loads(data_string)
-
             metadata = data["metadata"]["channelMetadataRenderer"]
-            main_tab = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][7].get("tabRenderer")
-            country = None
-            if main_tab is not None:
-                contents = main_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]  # I hate YouTube
-                country = contents["channelAboutFullMetadataRenderer"].get("country")
 
             return results.YoutubeChannelResult(
                 username=metadata["ownerUrls"][0].split("/@")[1],
@@ -224,7 +218,7 @@ def youtube_channel_handler(
                     for text in metadata["description"].split()
                     if text.startswith("http") or ".com" in text
                 ],
-                location=country["simpleText"] if country is not None else None
+                location=None
             )
 
 
@@ -237,6 +231,20 @@ def duolingo_profile_handler(
 
     return results.DuolingoProfileResult(
         social_medias=f'https://www.duolingo.com/profile/{data["users"][0]["username"]}'
+    )
+
+
+def steam_profile_handler(
+    response: models.HttpResponse
+):
+    soup = response.soup
+    country_element = soup.find("div", {"class": "header_real_name ellipsis"})
+    return results.SteamProfileResult(
+        social_medias=[
+            link["href"].split("/?url=")[1]
+            for link in soup.find("div", {"class": "profile_summary"}).find_all("a", href=True)
+        ],
+        location=country_element.text.strip() if country_element is not None else None
     )
 
 
@@ -253,7 +261,8 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "mail_ru_recovery_result": mail_ru_recovery_handler,
     "consent_form_lookup": youtube_consent_handler,
     "youtube_channel_lookup": youtube_channel_handler,
-    "duolingo_email_lookup": duolingo_profile_handler
+    "duolingo_email_lookup": duolingo_profile_handler,
+    "steam_id_lookup": steam_profile_handler
 }
 
 

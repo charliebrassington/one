@@ -25,7 +25,8 @@ class YoutubeScraper(base_scraper.Scraper):
         if "youtube.com/channel" not in link:
             return None
 
-        if not link.endswith("/about"):
+        link = link.split("?")[0]
+        if "about" not in link:
             link = f"{link}/about"
 
         return await self.make_request(

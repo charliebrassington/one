@@ -93,3 +93,9 @@ class YoutubeChannelResult(Result):
 @dataclass
 class DuolingoProfileResult(Result):
     social_medias: str
+
+
+@dataclass
+class SteamProfileResult(Result):
+    social_medias: List[str]
+    location: str | None

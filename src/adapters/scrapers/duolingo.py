@@ -12,6 +12,12 @@ class DuolingoScraper(base_scraper.Scraper):
     )
 
     async def lookup_email(self, email: str) -> models.HttpResponse:
+        """
+        Lookup an email on duolingo.com to find the profile matching the email if signed up.
+
+        :param email:
+        :return: models.HttpResponse
+        """
         return await self.make_request(
             method="get",
             request_name="duolingo_email_lookup",

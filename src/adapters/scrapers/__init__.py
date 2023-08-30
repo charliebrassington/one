@@ -8,6 +8,7 @@ from .twitch import TwitchScraper
 from .mailru import MailruScraper
 from .youtube import YoutubeScraper
 from .duolingo import DuolingoScraper
+from .steam import SteamScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -22,5 +23,6 @@ SCRAPER_TUPLE = (
     TwitchScraper,
     MailruScraper,
     YoutubeScraper,
-    DuolingoScraper
+    DuolingoScraper,
+    SteamScraper
 )

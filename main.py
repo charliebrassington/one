@@ -22,6 +22,7 @@ parser.add_argument("--discord-id", metavar="<id>")
 parser.add_argument("--first-name", metavar="<name>")
 parser.add_argument("--middle-name", metavar="<name>")
 parser.add_argument("--last-name", metavar="<name>")
+parser.add_argument("--steam-id", metavar="<id>")
 
 
 parsed_arguments = parser.parse_args()
