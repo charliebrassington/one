@@ -18,6 +18,8 @@ $ pip3 install -r requirements.txt
 ```
 
 ## Usage
+
+### Command Line
 ```bash
 python3 main.py --help
 python3 main.py --search-depth 5 --email email_here --minecraft-username username_here ...

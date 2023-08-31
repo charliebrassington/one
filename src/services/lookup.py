@@ -75,12 +75,12 @@ class Lookup:
                 print(f"Parsing {response.name}")
                 self.information_service.add_result(parsed_response)
 
-    async def run(self, search_depth: int = 3) -> None:
+    async def run(self, search_depth: int = 3) -> Dict[str, List[Any]]:
         """
         Iterates the run_tasks function the set many times chosen.
 
         :param search_depth:
-        :return: None
+        :return: result
         """
         for depth in range(search_depth):
             print(f"Running {depth+1} Depth")
@@ -93,3 +93,4 @@ class Lookup:
 
         await self.session.close()
         print(f"Finished {len(self.seen_pairs)} Scrapers")
+        return dict(self.information_service.information)

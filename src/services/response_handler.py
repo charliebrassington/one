@@ -13,6 +13,12 @@ def _collect_cbc_data(soup):
             }
 
 
+def _handle_tabs(title: str, tabs: list):
+    for tab in tabs:
+        if tab["tabRenderer"]["title"] == title:
+            return tab
+
+
 def about_me_email_handler(
     response: models.HttpResponse
 ) -> results.AboutMeEmailResult | None:
@@ -162,12 +168,17 @@ def twitch_description_handler(
     for script in response.soup.find_all("script"):
         if "isLoggedInServerside" in script.text:
             data = json.loads(script.text)
+            social_medias = []
+            for name, value in data["props"]["relayQueryRecords"].items():
+                link = value.get("linkURL")
+                if name.startswith("DefaultPanel") and link is not None:
+                    social_medias.append(link)
+
+                elif name.startswith("SocialMedia"):
+                    social_medias.append(value["url"])
+
             return results.TwitchProfileResult(
-                social_medias=[
-                    value["url"]
-                    for name, value in data["props"]["relayQueryRecords"].items()
-                    if name.startswith("SocialMedia")
-                ]
+                social_medias=social_medias
             )
 
     return None
@@ -209,16 +220,28 @@ def youtube_channel_handler(
         if "ytInitialData" in script.text:
             data_string = script.text.replace("var ytInitialData = ", "").split(";")[0]
             data = json.loads(data_string)
+
+            tab_list = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
             metadata = data["metadata"]["channelMetadataRenderer"]
+
+            about_tab = _handle_tabs(title="About", tabs=tab_list)["tabRenderer"]
+            content = about_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]
+            about_metadata = content["channelAboutFullMetadataRenderer"]
+
+            social_medias = [
+                text
+                for text in metadata["description"].split()
+                if text.startswith("http") or ".com" in text
+            ]
+            social_medias.extend([
+                f'https://{link["channelExternalLinkViewModel"]["link"]["content"]}'
+                for link in about_metadata.get("links", [])]
+            )
 
             return results.YoutubeChannelResult(
                 username=metadata["ownerUrls"][0].split("/@")[1],
-                social_medias=[
-                    text
-                    for text in metadata["description"].split()
-                    if text.startswith("http") or ".com" in text
-                ],
-                location=None
+                social_medias=social_medias,
+                location=about_metadata["country"]["simpleText"] if "country" in about_metadata else None
             )
 
 

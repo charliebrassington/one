@@ -8,8 +8,8 @@ from argparse import ArgumentParser
 
 async def main(args: dict, search_depth: int = 3):
     information_lookup = lookup.Lookup(starting_information=args)
-    await information_lookup.run(search_depth=search_depth)
-    print(json.dumps(dict(information_lookup.information_service.information), indent=4))
+    result = await information_lookup.run(search_depth=search_depth)
+    print(json.dumps(dict(result), indent=4))
 
 
 parser = ArgumentParser()
