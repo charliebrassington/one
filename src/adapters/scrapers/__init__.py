@@ -9,6 +9,7 @@ from .mailru import MailruScraper
 from .youtube import YoutubeScraper
 from .duolingo import DuolingoScraper
 from .steam import SteamScraper
+from .nitter import NitterScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -24,5 +25,6 @@ SCRAPER_TUPLE = (
     MailruScraper,
     YoutubeScraper,
     DuolingoScraper,
-    SteamScraper
+    SteamScraper,
+    NitterScraper
 )

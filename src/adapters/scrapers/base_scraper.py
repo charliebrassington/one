@@ -37,7 +37,7 @@ class Scraper(AbstractScraper):
         :param kwargs:
         :return: models.HttpResponse
         """
-        async with getattr(self.session, method)(**kwargs) as response:
+        async with getattr(self.session, method)(**kwargs, timeout=3) as response:
             content = await response.text()
             return models.HttpResponse(
                 name=request_name,

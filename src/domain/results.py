@@ -99,3 +99,10 @@ class DuolingoProfileResult(Result):
 class SteamProfileResult(Result):
     social_medias: List[str]
     location: str | None
+
+
+@dataclass
+class NitterProfileResult(Result):
+    photos: List[str]
+    location: str
+    social_medias: str

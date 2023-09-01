@@ -271,6 +271,21 @@ def steam_profile_handler(
     )
 
 
+def nitter_profile_handler(
+    response: models.HttpResponse
+):
+    soup = response.soup
+
+    link_element = soup.find("div", {"class": "profile-website"})
+    location_element = soup.find("div", {"class": "profile-location"})
+
+    return results.NitterProfileResult(
+        location=location_element.text.strip() if location_element is not None else None,
+        social_medias=link_element.find("a")["href"] if link_element is not None else None,
+        photos=[]
+    )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -285,7 +300,8 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "consent_form_lookup": youtube_consent_handler,
     "youtube_channel_lookup": youtube_channel_handler,
     "duolingo_email_lookup": duolingo_profile_handler,
-    "steam_id_lookup": steam_profile_handler
+    "steam_id_lookup": steam_profile_handler,
+    "nitter_profile_lookup": nitter_profile_handler
 }
 
 
