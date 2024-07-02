@@ -390,6 +390,11 @@ def handle_response(response: models.HttpResponse | None) -> results.Result | No
     if response is None:
         return None
 
-    print(f"Handling {response.name}")
-    handler = RESPONSE_HANDLERS[response.name]
-    return handler(response)
+    try:
+        print(f"Handling: {response.name}")
+        handler = RESPONSE_HANDLERS[response.name]
+        return handler(response)
+
+    except:
+        # Harsh error handling
+        print(f"Module failed: {response.name}")
