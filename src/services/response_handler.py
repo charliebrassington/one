@@ -286,6 +286,83 @@ def nitter_profile_handler(
     )
 
 
+def bloxflip_profile_handler(
+    response: models.HttpResponse
+):
+    data = json.loads(response.content)
+    if data["success"]:
+        return results.BloxflipStatsResult(
+            gambling_history={
+                "amount_gambled": data["wager"],
+                "currency": "robux"
+            },
+            username=data["username"]
+        )
+
+    return None
+
+
+def telegram_channel_handler(
+    response: models.HttpResponse
+):
+    social_media_links = [
+        link["href"]
+        for link in response.soup.find_all("a", href=True)
+        if "t.me" not in link["href"] and
+           not link["href"].startswith("//") and
+           not link["href"].startswith("/s/") and
+           "tg://" not in link["href"]
+
+    ]
+
+    return results.TelegramChannelResult(
+        social_medias=social_media_links
+    )
+
+
+def sellpass_store_handler(
+    response: models.HttpResponse
+):
+    for script in response.soup.find_all("script"):
+        if "discordOauthUrl" in script.text:
+            data = json.loads(script.text)
+            store_data = data["props"]["pageProps"]["pageInfo"]
+            return results.SellpassStoreResult(
+                social_medias=[
+                    social_link["link"]
+                    for social_link in store_data["mainDetails"]["socialLinks"]
+                ]
+            )
+
+
+def sellix_store_handler(
+    response: models.HttpResponse
+):
+    for script in response.soup.find_all("script"):
+        if "force_paypal_email_delivery" in script.text:
+            parsed_text = script.text.split("__ = ")[1].split("window.RECAPTCHA_PUBLIC_KEY")[0]
+            data = json.loads(parsed_text.strip()[:-1])
+
+            shop_info = data["common"]["shopInfo"]["shop"]
+            plan_info = shop_info["subscription"]
+
+            plan = None if plan_info is None else {
+                "item": plan_info["name"],
+                "price": plan_info["price"],
+                "currency": plan_info["currency"],
+                "date": "unknown",
+                "site": "sellix.io"
+            }
+
+            return results.SellixStoreResult(
+                social_medias=[value for name, value in shop_info.items() if name.endswith("link") and value is not None],
+                currency=shop_info["currency"],
+                paypal_merchant_id=shop_info["paypal_merchant_id"],
+                binance_id=shop_info["binance_id"],
+                payment_history=plan
+            )
+
+
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
     "about_me_username_lookup": about_me_profile_handler,
@@ -301,7 +378,11 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "youtube_channel_lookup": youtube_channel_handler,
     "duolingo_email_lookup": duolingo_profile_handler,
     "steam_id_lookup": steam_profile_handler,
-    "nitter_profile_lookup": nitter_profile_handler
+    "nitter_profile_lookup": nitter_profile_handler,
+    "bloxflip_roblox_id_lookup": bloxflip_profile_handler,
+    "telegram_channel_lookup": telegram_channel_handler,
+    "sellpass_store_username_lookup": sellpass_store_handler,
+    "sellix_store_username_lookup": sellix_store_handler
 }
 
 

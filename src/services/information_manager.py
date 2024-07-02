@@ -1,19 +1,21 @@
+import itertools
+
 from collections import defaultdict
 from typing import Any
 
 from src.domain import results
 
 
-validator_keys = (
+validator_keys = {
     "current_address",
     "previous_addresses",
     "birth_year",
     "birth_date"
-)
+}
 
 
 name_converters = {
-    "user_name": "username",
+    "user_name": "about_me_username",
     "address": "current_address"
 }
 
@@ -97,7 +99,11 @@ class InformationManager:
         :return: None
         """
         for key, value_list in self.information.copy().items():
-            if value_list:
+            if key in {"gambling_history", "payment_history"}:
+                # Blacklist for all keys which have unhashable types e.g. dictionaries)
+                continue
+
+            elif value_list:
                 self.information[key] = list(set(value_list))
             else:
                 self.information.pop(key)
@@ -108,16 +114,13 @@ class InformationManager:
 
         :return: None
         """
-        first_names = self.information["first_name"]
-        last_names = self.information["last_name"]
-        middle_names = self.information["middle_name"]
+        names_list = [
+            self.information["first_name"],
+            self.information["last_name"],
+        ]
 
-        if middle_names:
-            combined_names = zip(first_names, middle_names, last_names)
-        else:
-            combined_names = zip(first_names, last_names)
+        if self.information["middle_name"]:
+            names_list.append(self.information["middle_name"])
 
-        for name in combined_names:
-            name_string = " ".join(name)
-            if name_string not in self.information["fullname"]:
-                self.information["fullname"].append(name_string)
+        names = itertools.product(*names_list)
+        self.information["fullname"] = [" ".join(name) for name in names]

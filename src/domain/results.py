@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Any
 from pydantic import BaseModel
 
 
@@ -106,3 +106,28 @@ class NitterProfileResult(Result):
     photos: List[str]
     location: str
     social_medias: str
+
+
+@dataclass
+class BloxflipStatsResult(Result):
+    gambling_history: Dict[str, Any]
+    username: str
+
+
+@dataclass
+class TelegramChannelResult(Result):
+    social_medias: List[str]
+
+
+@dataclass
+class SellpassStoreResult(Result):
+    social_medias: List[str]
+
+
+@dataclass
+class SellixStoreResult(Result):
+    social_medias: List[str]
+    paypal_merchant_id: str | None
+    binance_id: str | None
+    currency: str
+    payment_history: Dict[str, Any] | None

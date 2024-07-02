@@ -23,6 +23,9 @@ parser.add_argument("--first-name", metavar="<name>")
 parser.add_argument("--middle-name", metavar="<name>")
 parser.add_argument("--last-name", metavar="<name>")
 parser.add_argument("--steam-id", metavar="<id>")
+parser.add_argument("--roblox-id", metavar="<id>")
+parser.add_argument("--sellpass-username", metavar="<name>")
+parser.add_argument("--sellix-username", metavar="<name>")
 
 
 parsed_arguments = parser.parse_args()

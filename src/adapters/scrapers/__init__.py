@@ -10,6 +10,10 @@ from .youtube import YoutubeScraper
 from .duolingo import DuolingoScraper
 from .steam import SteamScraper
 from .nitter import NitterScraper
+from .bloxflip import BloxflipScraper
+from .telegram import TelegramScraper
+from .sellpass import SellpassScraper
+from .sellix import SellixScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -26,5 +30,9 @@ SCRAPER_TUPLE = (
     YoutubeScraper,
     DuolingoScraper,
     SteamScraper,
-    NitterScraper
+    NitterScraper,
+    BloxflipScraper,
+    TelegramScraper,
+    SellpassScraper,
+    SellixScraper
 )

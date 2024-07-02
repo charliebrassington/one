@@ -8,7 +8,7 @@ class AboutMeScraper(base_scraper.Scraper):
         main_url="https://about.me/",
         functions={
             "email": "lookup_email",
-            "username": "lookup_username"
+            "about_me_username": "lookup_username"
         }
     )
 
