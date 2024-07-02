@@ -1,7 +1,18 @@
 import json
 
-from src.domain import results, models
 from typing import Callable, Dict
+
+from bs4 import BeautifulSoup
+
+from src.domain import results, models
+
+
+def find_script_data(soup: BeautifulSoup, text: str):
+    for script in soup.find_all("script"):
+        if text in script.text:
+            return script.text
+
+    return None
 
 
 def _collect_cbc_data(soup):
@@ -33,23 +44,22 @@ def about_me_email_handler(
 def about_me_profile_handler(
     response: models.HttpResponse
 ) -> results.AboutMeUsernameResult | None:
-    for script in response.soup.find_all("script"):
-        script_text = script.text
-        if "DOMAIN_NAME" in script_text:
-            data = json.loads(script_text)
-            user_info = data["page"]["user"]
-            if user_info is None:
-                return None
+    unparsed_data = find_script_data(response.soup, "DOMAIN_NAME")
+    if unparsed_data is None:
+        return None
 
-            return results.AboutMeUsernameResult(
-                first_name=user_info["first_name"],
-                last_name=user_info["last_name"],
-                interests=[item["interest"] for item in user_info["interests"]],
-                location=user_info["locations"][0]["location"],
-                social_medias=[app["site_url"] for app in user_info["apps"]]
-            )
+    data = json.loads(unparsed_data)
+    user_info = data["page"]["user"]
+    if user_info is None:
+        return None
 
-    return None
+    return results.AboutMeUsernameResult(
+        first_name=user_info["first_name"],
+        last_name=user_info["last_name"],
+        interests=[item["interest"] for item in user_info["interests"]],
+        location=user_info["locations"][0]["location"],
+        social_medias=[app["site_url"] for app in user_info["apps"]]
+    )
 
 
 def company_house_person_handler(
@@ -107,9 +117,9 @@ def plancke_profile_handler(
 ):
     soup = response.soup
     discord_username = None
-    for script in soup.find_all("script"):
-        if "social_DISCORD" in script.text:
-            discord_username = script.text.split('Discord", "')[1].split('");')[0]
+    data = find_script_data(soup, "social_DISCORD")
+    if data is None:
+        discord_username = data.split('Discord", "')[1].split('");')[0]
 
     return results.PlanckeProfile(
         discord_username=discord_username,
@@ -165,23 +175,23 @@ def cyberbackgroundcheck_id_handler(
 def twitch_description_handler(
     response: models.HttpResponse
 ):
-    for script in response.soup.find_all("script"):
-        if "isLoggedInServerside" in script.text:
-            data = json.loads(script.text)
-            social_medias = []
-            for name, value in data["props"]["relayQueryRecords"].items():
-                link = value.get("linkURL")
-                if name.startswith("DefaultPanel") and link is not None:
-                    social_medias.append(link)
+    data = find_script_data(response.soup, "isLoggedInServerside")
+    if data is None:
+        return None
 
-                elif name.startswith("SocialMedia"):
-                    social_medias.append(value["url"])
+    data = json.loads(data)
+    social_medias = []
+    for name, value in data["props"]["relayQueryRecords"].items():
+        link = value.get("linkURL")
+        if name.startswith("DefaultPanel") and link is not None:
+            social_medias.append(link)
 
-            return results.TwitchProfileResult(
-                social_medias=social_medias
-            )
+        elif name.startswith("SocialMedia"):
+            social_medias.append(value["url"])
 
-    return None
+    return results.TwitchProfileResult(
+        social_medias=social_medias
+    )
 
 
 def mail_ru_recovery_handler(
@@ -216,33 +226,35 @@ def youtube_consent_handler(
 def youtube_channel_handler(
     response: models.HttpResponse
 ):
-    for script in response.soup.find_all("script"):
-        if "ytInitialData" in script.text:
-            data_string = script.text.replace("var ytInitialData = ", "").split(";")[0]
-            data = json.loads(data_string)
+    unparsed_data = find_script_data(response.soup, "ytInitialData")
+    if unparsed_data is None:
+        return None
 
-            tab_list = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
-            metadata = data["metadata"]["channelMetadataRenderer"]
+    data_string = unparsed_data.replace("var ytInitialData = ", "").split(";")[0]
+    data = json.loads(data_string)
 
-            about_tab = _handle_tabs(title="About", tabs=tab_list)["tabRenderer"]
-            content = about_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]
-            about_metadata = content["channelAboutFullMetadataRenderer"]
+    tab_list = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
+    metadata = data["metadata"]["channelMetadataRenderer"]
 
-            social_medias = [
-                text
-                for text in metadata["description"].split()
-                if text.startswith("http") or ".com" in text
-            ]
-            social_medias.extend([
-                f'https://{link["channelExternalLinkViewModel"]["link"]["content"]}'
-                for link in about_metadata.get("links", [])]
-            )
+    about_tab = _handle_tabs(title="About", tabs=tab_list)["tabRenderer"]
+    content = about_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]
+    about_metadata = content["channelAboutFullMetadataRenderer"]
 
-            return results.YoutubeChannelResult(
-                username=metadata["ownerUrls"][0].split("/@")[1],
-                social_medias=social_medias,
-                location=about_metadata["country"]["simpleText"] if "country" in about_metadata else None
-            )
+    social_medias = [
+        text
+        for text in metadata["description"].split()
+        if text.startswith("http") or ".com" in text
+    ]
+    social_medias.extend([
+        f'https://{link["channelExternalLinkViewModel"]["link"]["content"]}'
+        for link in about_metadata.get("links", [])]
+    )
+
+    return results.YoutubeChannelResult(
+        username=metadata["ownerUrls"][0].split("/@")[1],
+        social_medias=social_medias,
+        location=about_metadata["country"]["simpleText"] if "country" in about_metadata else None
+    )
 
 
 def duolingo_profile_handler(
@@ -266,6 +278,7 @@ def steam_profile_handler(
         social_medias=[
             link["href"].split("/?url=")[1]
             for link in soup.find("div", {"class": "profile_summary"}).find_all("a", href=True)
+            if len(link["href"].split("/?url=")) > 1
         ],
         location=country_element.text.strip() if country_element is not None else None
     )
@@ -307,7 +320,8 @@ def telegram_channel_handler(
 ):
     social_media_links = [
         link["href"]
-        for link in response.soup.find_all("a", href=True)
+        for msg_element in response.soup.find_all("div", {"class": "tgme_widget_message_bubble"})
+        for link in msg_element.find_all("a", href=True)
         if "t.me" not in link["href"] and
            not link["href"].startswith("//") and
            not link["href"].startswith("/s/") and
@@ -323,44 +337,49 @@ def telegram_channel_handler(
 def sellpass_store_handler(
     response: models.HttpResponse
 ):
-    for script in response.soup.find_all("script"):
-        if "discordOauthUrl" in script.text:
-            data = json.loads(script.text)
-            store_data = data["props"]["pageProps"]["pageInfo"]
-            return results.SellpassStoreResult(
-                social_medias=[
-                    social_link["link"]
-                    for social_link in store_data["mainDetails"]["socialLinks"]
-                ]
-            )
+    unparsed_data = find_script_data(response.soup, "discordOauthUrl")
+    if unparsed_data is None:
+        return None
+
+    data = json.loads(unparsed_data)
+    store_data = data["props"]["pageProps"]["pageInfo"]
+    return results.SellpassStoreResult(
+        social_medias=[
+            social_link["link"]
+            for social_link in store_data["mainDetails"]["socialLinks"]
+        ]
+    )
 
 
 def sellix_store_handler(
     response: models.HttpResponse
 ):
-    for script in response.soup.find_all("script"):
-        if "force_paypal_email_delivery" in script.text:
-            parsed_text = script.text.split("__ = ")[1].split("window.RECAPTCHA_PUBLIC_KEY")[0]
-            data = json.loads(parsed_text.strip()[:-1])
+    unparsed_data = find_script_data(response.soup, "force_paypal_email_delivery")
+    if unparsed_data is None:
+        return None
 
-            shop_info = data["common"]["shopInfo"]["shop"]
-            plan_info = shop_info["subscription"]
+    parsed_text = unparsed_data.split("__ = ")[1].split("window.RECAPTCHA_PUBLIC_KEY")[0]
+    data = json.loads(parsed_text.strip()[:-1])
 
-            plan = None if plan_info is None else {
-                "item": plan_info["name"],
-                "price": plan_info["price"],
-                "currency": plan_info["currency"],
-                "date": "unknown",
-                "site": "sellix.io"
-            }
+    shop_info = data["common"]["shopInfo"]["shop"]
+    plan_info = shop_info.get("subscription")
 
-            return results.SellixStoreResult(
-                social_medias=[value for name, value in shop_info.items() if name.endswith("link") and value is not None],
-                currency=shop_info["currency"],
-                paypal_merchant_id=shop_info["paypal_merchant_id"],
-                binance_id=shop_info["binance_id"],
-                payment_history=plan
-            )
+    plan = None if plan_info is None else {
+        "item": plan_info["name"],
+        "price": plan_info["price"],
+        "currency": plan_info["currency"],
+        "date": "unknown",
+        "site": "sellix.io"
+    }
+
+    return results.SellixStoreResult(
+        social_medias=[value for name, value in shop_info.items() if name.endswith("link") and value is not None],
+        currency=shop_info["currency"],
+        paypal_merchant_id=shop_info["paypal_merchant_id"],
+        binance_id=shop_info["binance_id"],
+        payment_history=plan
+    )
+
 
 
 RESPONSE_HANDLERS: Dict[str, Callable] = {

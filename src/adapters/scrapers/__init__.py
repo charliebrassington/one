@@ -30,7 +30,6 @@ SCRAPER_TUPLE = (
     YoutubeScraper,
     DuolingoScraper,
     SteamScraper,
-    NitterScraper,
     BloxflipScraper,
     TelegramScraper,
     SellpassScraper,
