@@ -26,6 +26,7 @@ parser.add_argument("--steam-id", metavar="<id>")
 parser.add_argument("--roblox-id", metavar="<id>")
 parser.add_argument("--sellpass-username", metavar="<name>")
 parser.add_argument("--sellix-username", metavar="<name>")
+parser.add_argument("--postcode", metavar="<postcode>")
 
 
 parsed_arguments = parser.parse_args()

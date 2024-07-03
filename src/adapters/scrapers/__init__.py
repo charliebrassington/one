@@ -14,6 +14,7 @@ from .bloxflip import BloxflipScraper
 from .telegram import TelegramScraper
 from .sellpass import SellpassScraper
 from .sellix import SellixScraper
+from .virgin_media import VirginMediaScraper
 
 from .base_scraper import Scraper, CloudflareScraper
 
@@ -33,5 +34,6 @@ SCRAPER_TUPLE = (
     BloxflipScraper,
     TelegramScraper,
     SellpassScraper,
-    SellixScraper
+    SellixScraper,
+    VirginMediaScraper
 )

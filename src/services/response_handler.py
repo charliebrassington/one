@@ -381,6 +381,45 @@ def sellix_store_handler(
     )
 
 
+def virgin_media_household_check(response: models.HttpResponse):
+    data = json.loads(response.content)
+    if "householdId" in data:
+        return results.VirginMediaValidator(
+            isp="virgin_media",
+            virgin_media_household_id=data["householdId"],
+            services_conversation_id=response.headers["Dapi-Conversationid"]
+        )
+
+
+def virgin_media_service_getter_handler(response: models.HttpResponse):
+    data = json.loads(response.content)
+    return results.VirginMediaServices(
+        services=data["productSet"],
+        faults_conversation_id=response.headers["Dapi-Conversationid"]
+    )
+
+
+def virgin_media_broadband_info_handler(response: models.HttpResponse):
+    data = json.loads(response.content)
+    return results.VirginMediaCustomerInformation(
+        device_details=[
+            {
+                "mac_address": device["macAddress"],
+                "item_number": device["itemNumber"],
+                "model_name": device["modelName"]
+            }
+            for device in data["deviceDetails"]
+        ],
+        equipment=[
+            {
+                "type": item["productType"],
+                "name": item["productName"],
+                "code": item["productCode"]
+            }
+            for item in data["equipmentAndProductDetails"]["equipment"]
+        ]
+    )
+
 
 RESPONSE_HANDLERS: Dict[str, Callable] = {
     "about_me_find_account": about_me_email_handler,
@@ -401,7 +440,10 @@ RESPONSE_HANDLERS: Dict[str, Callable] = {
     "bloxflip_roblox_id_lookup": bloxflip_profile_handler,
     "telegram_channel_lookup": telegram_channel_handler,
     "sellpass_store_username_lookup": sellpass_store_handler,
-    "sellix_store_username_lookup": sellix_store_handler
+    "sellix_store_username_lookup": sellix_store_handler,
+    "virgin_media_check_household": virgin_media_household_check,
+    "virgin_media_get_services": virgin_media_service_getter_handler,
+    "virgin_media_get_broadband_info": virgin_media_broadband_info_handler
 }
 
 

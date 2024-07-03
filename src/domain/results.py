@@ -131,3 +131,23 @@ class SellixStoreResult(Result):
     binance_id: str | None
     currency: str
     payment_history: Dict[str, Any] | None
+
+
+@dataclass
+class VirginMediaValidator:
+    isp: str
+    virgin_media_household_id: str
+    services_conversation_id: str
+
+
+@dataclass
+class VirginMediaServices:
+    services: List[str]
+    faults_conversation_id: str
+
+
+@dataclass
+class VirginMediaCustomerInformation:
+    device_details: List[dict]
+    equipment: List[dict]
+

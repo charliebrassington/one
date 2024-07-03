@@ -99,7 +99,7 @@ class InformationManager:
         :return: None
         """
         for key, value_list in self.information.copy().items():
-            if key in {"gambling_history", "payment_history"}:
+            if key in {"gambling_history", "payment_history", "device_details", "equipment"}:
                 # Blacklist for all keys which have unhashable types e.g. dictionaries)
                 continue
 
