@@ -8,6 +8,7 @@ class HttpResponse:
     name: str
     content: str
     status_code: int
+    headers: dict
 
     @property
     def soup(self):

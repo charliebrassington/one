@@ -42,7 +42,8 @@ class Scraper(AbstractScraper):
             return models.HttpResponse(
                 name=request_name,
                 content=content,
-                status_code=response.status
+                status_code=response.status,
+                headers=response.headers
             )
 
 
@@ -78,5 +79,6 @@ class CloudflareScraper(AbstractScraper):
         return models.HttpResponse(
             name=request_name,
             content=response.text,
-            status_code=response.status_code
+            status_code=response.status_code,
+            headers=dict(response.headers)
         )
